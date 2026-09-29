@@ -1,0 +1,459 @@
+{
+  "name": "First !!",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://www.reddit.com/r/ProductManagement+ProductManagementJobs+ProductManagement_IN/top/.rss?t=week",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -1104
+      ],
+      "id": "9cf6d946-4f14-46c6-b5bb-e30f8078eba6",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "269afc07-10c6-4345-82ef-4b4ab332dd87",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "4357247c-b8c8-4056-927d-9145209da904",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "986d27ae-6601-4220-bc43-6b2b2a7827d0",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "361e1dc8-9cb6-4eb4-a231-22a3adf981dd",
+              "name": "contentSnippet",
+              "value": "={{ $json.contentSnippet }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -176,
+        -1104
+      ],
+      "id": "311251da-a0df-47e1-86fc-704a021ba267",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -768
+      ],
+      "id": "e2cd51be-0263-4005-b721-408d512c862f",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FRaiJ212qbkeYyrR",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -1104
+      ],
+      "id": "578eeb73-60a4-401b-81b2-be255144096e",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        496,
+        -1184
+      ],
+      "id": "43ad767d-d60f-45f1-9f91-f9aeccf71f00",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Decide whether a reddit post contains useful advice to an aspiring Product manager or not. An aspiring Product Manager would like to know what is going on in the industry, What other product managers are doing at their job, what they are struggling with, Any important career advice shared in these posts, what skills they are developing. \nReddit Post: {{ $json.contentSnippet }}\nUseful: Yes/No\nThe output should be only Useful: Yes/No",
+        "messages": {
+          "messageValues": []
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        240,
+        -976
+      ],
+      "id": "05957e0a-14d8-4a46-87e9-4167e752a178",
+      "name": "LLM classifier"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4c270e63-ccf4-480e-8a3f-fc7b2b283182",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        -1184
+      ],
+      "id": "0c5068e7-7973-4468-b754-5733498352ba",
+      "name": "If useful"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=For each reddit post, write a concise 1-2 sentence summary explaining what the post is about, the key insight or discussion, and the most relevant takeaway, if any.\nReddit post : {{ $json.contentSnippet }}\nSummary : ",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        880,
+        -976
+      ],
+      "id": "5abad568-e2b2-4c48-8da1-8229ca5982b8",
+      "name": "LLM Summarizer"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -768
+      ],
+      "id": "a86a5dd1-fdb9-4ab8-afb5-9ea752d3ee55",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FRaiJ212qbkeYyrR",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1216,
+        -1104
+      ],
+      "id": "9e5449dc-1f3b-417a-b349-00dcded62a58",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "29ae7b64-7101-47da-ba48-1d7cb309f5ce",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "2d25cefe-5a0a-415c-9f6d-ba5ae4fb3401",
+              "name": "AI Summary",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "37b9ee71-483c-4d46-8ee7-4088f323950e",
+              "name": "Link to original post",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1424,
+        -1104
+      ],
+      "id": "262d90f6-03f5-4300-b3b0-fb32ff2a5359",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@gmail.com",
+        "subject": "Check out what PMs are talking about 👀",
+        "message": "={{$json.emailBody}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        -1104
+      ],
+      "id": "93fd7827-583e-4cca-a949-747ea88c06c6",
+      "name": "Send a message",
+      "webhookId": "7e75117d-e7d6-4fbd-b6b8-1730e6d65932",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hMV95IF3PoPs7X9x",
+          "name": "Google Auth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -1104
+      ],
+      "id": "02d1b71d-38da-4dfd-9117-9b59aeac7867",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst items = $input.all();\n\nlet emailBody = `\n<h1>🧠 PM Reddit Digest</h1>\n<p>Here are the most useful discussions from the Product Management communities.</p>\n<hr>\n`;\n\nitems.forEach((item, index) => {\n  const title = item.json[\"Title\"] || \"Untitled\";\n  const summary = item.json[\"AI Summary\"] || \"\";\n  const link = item.json[\"Link to original post\"] || \"\";\n\n  emailBody += `\n    <h2>${index + 1}. ${title}</h2>\n    \n    <p>${summary}</p>\n    \n    <p>\n      🔗 <a href=\"${link}\">Read the original post</a>\n    </p>\n    \n    <hr>\n  `;\n});\n\nreturn [\n  {\n    json: {\n      emailBody\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        -1104
+      ],
+      "id": "d539c6e6-7211-4a50-9100-8f6abf792c01",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "LLM classifier",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM classifier": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If useful",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If useful": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LLM Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0d962d06-6b68-4d75-9b91-ccfec6f215c1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+      },
+  "nodeGroups": [],
+  "id": "WlrovownDiQDmEB2",
+  "tags": []
+}
