@@ -1,6 +1,7 @@
-# n8n-reddit-brief
+# Reddit AI Digest for PMs
+
 ## What it does?
-This automated n8n workflow collects weekly top discussions from Product Management Reddit communities, uses AI to first categorize them into useful / not useful posts and then summarizes the useful discussions, and sends a readable digest to your Gmail. 
+This automated **n8n** workflow collects weekly top discussions from Product Management Reddit communities, uses AI to first categorize them into useful / not useful posts and then summarizes the useful discussions, and sends a readable digest to your Gmail. 
 
 ## Demo
 ![Workflow Demo](./workflow-demo.gif)
