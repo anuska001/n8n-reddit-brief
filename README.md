@@ -1,6 +1,7 @@
 # n8n-reddit-brief
 ## What it does?
 This automated n8n workflow collects weekly top discussions from Product Management Reddit communities, uses AI to first categorize them into useful / not useful posts and then summarizes the useful discussions, and sends a readable digest to Gmail. 
+<img width="1913" height="855" alt="n8n-final-workflow" src="https://github.com/user-attachments/assets/1592807d-9ef1-495a-9156-8c956d75720b" />
 
 ## How to use it?
 1. Import the n8n workflow JSON (n8n-reddit-brief.json) into your n8n instance.
